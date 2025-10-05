@@ -1,2 +1,2 @@
-# DAA_Assign2
+# DAA_Assign2 - Student B: Kadane's Algorithm (maximum subarray sum with position tracking)
 Second Assignment of DAA (Madiyar Kenzhebayev SE-2407)
