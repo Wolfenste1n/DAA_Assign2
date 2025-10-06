@@ -2,11 +2,48 @@ package cli;
 
 import algorithms.Kadanes_Algorithm;
 import algorithms.Kadanes_Algorithm.Result;
+import org.openjdk.jmh.annotations.*;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class BenchmarkRunner {
+
+    // === JMH SECTION ===
+    @BenchmarkMode(Mode.AverageTime)
+    @OutputTimeUnit(TimeUnit.MILLISECONDS)
+    @Warmup(iterations = 2)
+    @Measurement(iterations = 5)
+    @Fork(1)
+    public static class KadanesJMH {
+
+        @State(Scope.Thread)
+        public static class InputData {
+            @Param({"1000", "10000", "100000"})
+            int n;
+            int[] arr;
+
+            @Setup(Level.Trial)
+            public void setup() {
+                arr = new int[n];
+                Random rnd = new Random(42);
+                for (int i = 0; i < n; i++) arr[i] = rnd.nextInt(201) - 100;
+            }
+        }
+
+        @Benchmark
+        public long baseline(InputData data) {
+            return Kadanes_Algorithm.runNoMetrics(data.arr);
+        }
+
+        @Benchmark
+        public long optimized(InputData data) {
+            return Kadanes_Algorithm.runOptimized(data.arr);
+        }
+    }
+
+    // === CLI SECTION ===
     public static void main(String[] args) {
         int[] defaultSizes = new int[]{100, 1000, 10000, 100000};
         int[] sizes;
@@ -17,7 +54,7 @@ public class BenchmarkRunner {
             for (String a : args) {
                 try {
                     list.add(Integer.parseInt(a));
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException ignored) {
                 }
             }
             if (list.isEmpty()) sizes = defaultSizes;
