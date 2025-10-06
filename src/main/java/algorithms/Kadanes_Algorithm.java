@@ -2,99 +2,87 @@ package algorithms;
 
 public class Kadanes_Algorithm {
 
-    public static final class Result {
-        public final long maxSum;
-        public final int startIndex;
-        public final int endIndex;
-        public final long comparisons;
-        public final long additions;
-        public final long assignments;
-        public final long arrayAccesses;
-        public Result(long maxSum, int startIndex, int endIndex,
-                      long comparisons, long additions, long assignments, long arrayAccesses) {
-            this.maxSum = maxSum;
-            this.startIndex = startIndex;
-            this.endIndex = endIndex;
-            this.comparisons = comparisons;
-            this.additions = additions;
-            this.assignments = assignments;
-            this.arrayAccesses = arrayAccesses;
-        }
-        @Override
-        public String toString() {
-            return String.format("maxSum=%d, start=%d, end=%d, comps=%d, adds=%d, assigns=%d, acc=%d",
-                    maxSum, startIndex, endIndex, comparisons, additions, assignments, arrayAccesses);
-        }
+    public static class Result {
+        public long maxSum;
+        public int startIndex;
+        public int endIndex;
+        public long comparisons;
+        public long additions;
+        public long assignments;
+        public long arrayAccesses;
     }
 
     public static Result run(int[] arr) {
-        if (arr == null) throw new IllegalArgumentException("Input array must not be null");
-        if (arr.length == 0) {
-            return new Result(Long.MIN_VALUE, -1, -1, 0, 0, 0, 0);
+        Result r = new Result();
+        if (arr == null || arr.length == 0) {
+            r.maxSum = 0;
+            r.startIndex = -1;
+            r.endIndex = -1;
+            return r;
+        }
+        if (arr.length == 1) {
+            r.maxSum = arr[0];
+            r.startIndex = 0;
+            r.endIndex = 0;
+            return r;
         }
 
-        long comparisons = 0;
-        long additions = 0;
-        long assignments = 0;
-        long arrayAccesses = 0;
-
-        arrayAccesses++;
-        long currentSum = arr[0]; assignments++;
-        long maxSum = arr[0]; assignments++;
-        int start = 0; assignments++;
-        int end = 0; assignments++;
-        int tempStart = 0; assignments++;
+        long maxSum = arr[0];
+        long currentSum = arr[0];
+        r.arrayAccesses += 2;
+        int start = 0, tempStart = 0, end = 0;
 
         for (int i = 1; i < arr.length; i++) {
-            arrayAccesses++;
-            long x = arr[i]; assignments++;
-
-            additions++;
-            comparisons++;
-            if (currentSum + x < x) {
-                currentSum = x; assignments++;
-                tempStart = i; assignments++;
+            r.comparisons++;
+            r.arrayAccesses++;
+            if (currentSum < 0) {
+                currentSum = arr[i];
+                tempStart = i;
+                r.assignments += 2;
             } else {
-                currentSum = currentSum + x; additions++; assignments++;
+                currentSum += arr[i];
+                r.additions++;
+                r.arrayAccesses++;
             }
 
-            comparisons++;
+            r.comparisons++;
             if (currentSum > maxSum) {
-                maxSum = currentSum; assignments++;
-                start = tempStart; assignments++;
-                end = i; assignments++;
+                maxSum = currentSum;
+                start = tempStart;
+                end = i;
+                r.assignments += 3;
             }
         }
 
-        return new Result(maxSum, start, end, comparisons, additions, assignments, arrayAccesses);
+        r.maxSum = maxSum;
+        r.startIndex = start;
+        r.endIndex = end;
+        return r;
     }
 
     public static long runNoMetrics(int[] arr) {
-        if (arr == null) throw new IllegalArgumentException("Input array must not be null");
-        if (arr.length == 0) return Long.MIN_VALUE;
+        if (arr == null || arr.length == 0) return 0;
+        if (arr.length == 1) return arr[0];
 
-        long currentSum = arr[0];
         long maxSum = arr[0];
+        long currentSum = arr[0];
         for (int i = 1; i < arr.length; i++) {
-            long x = arr[i];
-            if (currentSum + x < x) currentSum = x;
-            else currentSum = currentSum + x;
-            if (currentSum > maxSum) maxSum = currentSum;
+            currentSum = Math.max(arr[i], currentSum + arr[i]);
+            maxSum = Math.max(maxSum, currentSum);
         }
         return maxSum;
     }
 
     public static long runOptimized(int[] arr) {
-        if (arr == null) throw new IllegalArgumentException("Input array must not be null");
-        if (arr.length == 0) return Long.MIN_VALUE;
+        if (arr == null || arr.length == 0) return 0;
+        if (arr.length == 1) return arr[0];
 
-        long cur = arr[0];
-        long max = arr[0];
-        for (int i = 1; i < arr.length; i++) {
-            long x = arr[i];
-            cur = Math.max(x, cur + x);
-            max = Math.max(max, cur);
+        long maxSum = 0;
+        long currentSum = 0;
+        for (int num : arr) {
+            currentSum = Math.max(0, currentSum + num);
+            maxSum = Math.max(maxSum, currentSum);
         }
-        return max;
+        return maxSum;
     }
 }
