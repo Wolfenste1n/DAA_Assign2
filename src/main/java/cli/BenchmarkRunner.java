@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 
 public class BenchmarkRunner {
 
-    // === JMH SECTION ===
     @BenchmarkMode(Mode.AverageTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(iterations = 2)
@@ -43,7 +42,6 @@ public class BenchmarkRunner {
         }
     }
 
-    // === CLI SECTION ===
     public static void main(String[] args) {
         int[] defaultSizes = new int[]{100, 1000, 10000, 100000};
         int[] sizes;
